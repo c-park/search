@@ -4,7 +4,7 @@
 # educational purposes provided that (1) you do not distribute or publish
 # solutions, (2) you retain this notice, and (3) you provide clear
 # attribution to UC Berkeley, including a link to http://ai.berkeley.edu.
-# 
+#
 # Attribution Information: The Pacman AI projects were developed at UC Berkeley.
 # The core projects and autograders were primarily created by John DeNero
 # (denero@cs.berkeley.edu) and Dan Klein (klein@cs.berkeley.edu).
@@ -72,8 +72,9 @@ def tinyMazeSearch(problem):
     w = Directions.WEST
     return  [s, s, w, s, w, w, s, w]
 
-def depthFirstSearch(problem):
+def search(problem, frontier):
     """
+    frontier: data structure used for the frontier, (queue, stack, etc)
     Search the deepest nodes in the search tree first.
 
     Your search algorithm needs to return a list of actions that reaches the
@@ -87,17 +88,45 @@ def depthFirstSearch(problem):
     print "Start's successors:", problem.getSuccessors(problem.getStartState())
     """
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+
+    # frontier = util.Stack()
+    n0 = problem.getStartState()
+    visited = []
+    frontier.push([(n0,"Stop", 0)])
+    while not frontier.isEmpty():
+        path = frontier.pop()
+        state = path[-1][0]
+        if state not in visited:
+            visited.append(state)
+            if problem.isGoalState(state):
+                return [p[1] for p in path][1:]
+            else:
+                for _next in problem.getSuccessors(state):
+                    if _next[0] not in visited:
+                        next_path = path[:]
+                        next_path.append(_next)
+                        frontier.push(next_path)
+
+    return None
+
+def depthFirstSearch(problem):
+    return search(problem, util.Stack())
+
 
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    return search(problem, util.Queue())
 
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+
+    def cost(path):
+        actions = [x[1] for x in path]
+        return problem.getCostOfActions(actions)
+
+    return search(problem, util.PriorityQueueWithFunction(cost))
 
 def nullHeuristic(state, problem=None):
     """
@@ -109,7 +138,13 @@ def nullHeuristic(state, problem=None):
 def aStarSearch(problem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    def cost(path):
+        actions = [x[1] for x in path]
+        heur_cost = heuristic(path[-1][0], problem)
+        return problem.getCostOfActions(actions) + heur_cost
+
+    return search(problem, util.PriorityQueueWithFunction(cost))
+
 
 
 # Abbreviations
